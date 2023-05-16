@@ -1,4 +1,5 @@
 use reqwest::Client;
+use std::io::Cursor;
 use worker::*;
 
 mod utils;
@@ -22,7 +23,7 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
     let router = Router::new();
     router
         .get_async("/", |req, _ctx| async move {
-            let wcli = Client::new();
+            let client = Client::new();
 
             if let Some(query) = req.url().unwrap().query() {
                 let params = query
@@ -37,22 +38,42 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
                     return Response::error("Missing url parameter", 400);
                 }
 
-                // fetch that shit! and resize like a real mo'fucka!
-                // get url from params
-                let img_url = params.get("url").unwrap().to_owned();
-                // get img_url using reqwest Client
-                console_log!("img url: {}", img_url);
-                let pl = wcli
-                    .get(img_url)
-                    .send()
-                    .await
+                let url = params.get("url").unwrap().to_owned();
+                let width = params
+                    .get("width")
+                    .unwrap_or(&&"")
+                    .parse::<u32>()
+                    .unwrap_or_default();
+                let height = params
+                    .get("height")
+                    .unwrap_or(&&"")
+                    .parse::<u32>()
+                    .unwrap_or_default();
+
+                let img_bytes = client.get(url).send().await.unwrap().bytes().await.unwrap();
+                let img = image::io::Reader::new(Cursor::new(&img_bytes))
+                    .with_guessed_format()
                     .unwrap()
-                    .bytes()
-                    .await
+                    .decode()
                     .unwrap();
-                let img = image::load_from_memory(&pl).unwrap();
-                img.resize_exact(200, 200, image::imageops::FilterType::Lanczos3);
-                return Response::from_bytes(img.into_bytes());
+
+                // resize
+                let img = image::imageops::resize(
+                    &img,
+                    width,
+                    height,
+                    image::imageops::FilterType::Lanczos3,
+                );
+
+                // create response
+                let mut buf = Cursor::new(Vec::new());
+                img.write_to(&mut buf, image::ImageOutputFormat::Jpeg(80))
+                    .unwrap();
+                if let Ok(resp) = Response::from_bytes(buf.into_inner()) {
+                    let mut heads = worker::Headers::new();
+                    heads.set("Content-Type", "image/jpeg").unwrap();
+                    return worker::Result::Ok(resp.with_status(200).with_headers(heads));
+                }
             }
             Response::ok("ImgPWOxy!")
         })
