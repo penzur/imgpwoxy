@@ -1,12 +1,10 @@
-# ti kag nawng!
+# imgpwoxy
 
-Edge version sa imgproxy daw but 100000x faster 🤣
+CF worker-rs study
 
 **How to dev**
 
 run `wrangler dev -l --no-bundle`
-
-daz it!
 
 **How to publish**
 
