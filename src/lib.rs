@@ -114,16 +114,15 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
             };
             // with the following headers
             let mut headers = worker::Headers::new();
-            match headers.set("Content-Type", "image/jpeg") {
-                Ok(_) => (),
-                Err(_) => return Response::error("failed to generate response", 404),
-            }
+            if let Ok(_) = headers.set("Content-Type", "image/jpeg") {}
             // cache control headers
-            match headers.set("Cache-Control", "public, max-age=31536000") {
-                Ok(_) => (),
-                Err(_) => return Response::error("failed to generate response", 404),
+            if let Ok(_) = headers.set("Cache-Control", "public, max-age=31536000") {}
+            // cache resp
+            let mut resp = resp.with_headers(headers.clone());
+            if let Ok(respc) = resp.cloned() {
+                // cache respc
+                if let Ok(_) = c.put(&key, respc).await {}
             }
-            let resp = resp.with_status(200).with_headers(headers);
             Ok(resp)
         })
         .run(req, env)

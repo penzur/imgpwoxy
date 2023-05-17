@@ -3,13 +3,13 @@
 img-proxy on the edge 🤣🙈
 
 ---
- 
- **TODOS:**
- 
- - [x] resize with aspect ratio
- - [ ] base64 encoded url?
- - [ ] add cache
- 
+
+**TODOS:**
+
+- [x] resize with aspect ratio
+- [ ] base64 encoded url?
+- [x] add cache
+
 ---
 
 **Requirements**
@@ -44,3 +44,4 @@ Try the following link with your browser of choice.
 ---
 
 🖖🤓
+
