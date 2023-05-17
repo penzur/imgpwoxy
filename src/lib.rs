@@ -91,7 +91,7 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
 
             // create response buffer and write the resized_img bytes to it
             let mut buf = Cursor::new(Vec::new());
-            match resized_img.write_to(&mut buf, image::ImageOutputFormat::Jpeg(80)) {
+            match resized_img.write_to(&mut buf, image::ImageOutputFormat::Jpeg(90)) {
                 Ok(_) => (),
                 Err(_) => return Response::error("failed to process image", 400),
             };
