@@ -63,9 +63,8 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
             };
             // fetch that shit!
             let f_u = Fetch::Request(req);
-            let pwamis = f_u.send();
-            let mut resp = match pwamis.await {
-                Ok(pwamis) => pwamis,
+            let mut resp = match f_u.send().await {
+                Ok(resp) => resp,
                 Err(_) => return Response::error("failed to fetch image", 400),
             };
             let image_bytes = match resp.bytes().await {
@@ -84,7 +83,7 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
                 Err(_) => return Response::error("failed to process image", 400),
             };
             // shadow that shit
-            let resized_img = resize(&img, width, height, FilterType::Lanczos3);
+            let resized_img = resize(&img, width, height, FilterType::Nearest);
 
             // reponse buffer
             let mut buf = Cursor::new(Vec::new());
