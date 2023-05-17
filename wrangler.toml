@@ -2,5 +2,7 @@ name = "imgpwoxy"
 main = "build/worker/shim.mjs"
 compatibility_date = "2023-03-22"
 
+logpush = true
+
 [build]
 command = "cargo install -q worker-build && worker-build --release"
