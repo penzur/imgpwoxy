@@ -43,7 +43,7 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
             // extract url, width, and height
             let url = match qs.get("url") {
                 Some(url) => url.to_owned(),
-                None => return Response::error("url not found", 400),
+                None => return Response::error("url could not be found", 400),
             };
             // defaults both w and h to 256
             let width = qs
@@ -59,7 +59,7 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
                 .unwrap_or(&"")
                 .to_owned()
                 .parse::<u32>()
-                .unwrap_or(width.clone());
+                .unwrap_or(256);
 
             // let's fetch the image
             let req = match Request::new(url, worker::Method::Get) {
