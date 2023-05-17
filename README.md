@@ -2,6 +2,16 @@
 
 img-proxy on the edge 🤣🙈
 
+---
+ 
+ **TODOS:**
+ 
+ - [x] resize with aspect ratio
+ - [ ] base64 encoded url?
+ - [ ] add cache
+ 
+---
+
 **Requirements**
 
 - [wrangler](https://developers.cloudflare.com/workers/wrangler/install-and-update/)
