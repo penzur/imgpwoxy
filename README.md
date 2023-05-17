@@ -1,6 +1,11 @@
-# imgpwoxy
+# imgpwoxy 🚀
 
-CF worker-rs study
+img-proxy on the edge 🤣🙈
+
+**Requirements**
+
+- [wrangler](https://developers.cloudflare.com/workers/wrangler/install-and-update/)
+- [Rust](https://www.rust-lang.org/tools/install)
 
 **How to dev**
 
