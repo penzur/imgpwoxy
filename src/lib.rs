@@ -77,7 +77,7 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
                 Err(_) => return Response::error("failed to process image", 400),
             };
 
-            // process image
+            // create image from response
             let cursor_bytes = Cursor::new(&image_bytes);
             let img_reader = match ImageReader::new(cursor_bytes).with_guessed_format() {
                 Ok(img) => img,
@@ -87,29 +87,27 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
                 Ok(img) => img,
                 Err(_) => return Response::error("failed to process image", 400),
             };
-            // shadow that shit
             let resized_img = img.resize_to_fill(width, height, FilterType::Lanczos3);
 
-            // reponse buffer
+            // create response buffer and write the resized_img bytes to it
             let mut buf = Cursor::new(Vec::new());
             match resized_img.write_to(&mut buf, image::ImageOutputFormat::Jpeg(80)) {
                 Ok(_) => (),
                 Err(_) => return Response::error("failed to process image", 400),
             };
 
+            // construct new response
             let resp = match Response::from_bytes(buf.into_inner()) {
                 Ok(resp) => resp,
                 Err(_) => return Response::error("failed to generate response", 400),
             };
-
-            // headers
+            // with the following headers
             let mut headers = worker::Headers::new();
             match headers.set("Content-Type", "image/jpeg") {
                 Ok(_) => (),
                 Err(_) => return Response::error("failed to generate response", 400),
             }
-
-            // gg!
+            // then, push mo yan teh!
             Ok(resp.with_status(200).with_headers(headers))
         })
         .run(req, env)
