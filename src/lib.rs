@@ -1,4 +1,4 @@
-use image::imageops::{resize, FilterType};
+use image::imageops::FilterType;
 use image::io::Reader as ImageReader;
 use std::io::Cursor;
 use worker::*;
@@ -30,7 +30,15 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
                 Err(_) => return Response::error("failed to parse url", 400),
             };
 
-            let qs = parse_query(url.query().unwrap_or("")).await;
+            let qs = url
+                .query()
+                .unwrap_or("")
+                .split("&")
+                .map(|kv| {
+                    let mut kv = kv.split("=");
+                    (kv.next().unwrap_or(""), kv.next().unwrap_or(""))
+                })
+                .collect::<std::collections::HashMap<&str, &str>>();
 
             // extract url, width, and height
             let url = match qs.get("url") {
@@ -52,9 +60,6 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
                 .to_owned()
                 .parse::<u32>()
                 .unwrap_or(width.clone());
-
-            // IS THIS JABASCRIPT??
-            console_log!("url: {}, width: {}, height: {}", url, width, height);
 
             // let's fetch the image
             let req = match Request::new(url, worker::Method::Get) {
@@ -83,7 +88,7 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
                 Err(_) => return Response::error("failed to process image", 400),
             };
             // shadow that shit
-            let resized_img = resize(&img, width, height, FilterType::Nearest);
+            let resized_img = img.resize_to_fill(width, height, FilterType::Lanczos3);
 
             // reponse buffer
             let mut buf = Cursor::new(Vec::new());
@@ -105,18 +110,8 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
             }
 
             // gg!
-            worker::Result::Ok(resp.with_status(200).with_headers(headers))
+            Ok(resp.with_status(200).with_headers(headers))
         })
         .run(req, env)
         .await
-}
-
-async fn parse_query(query: &str) -> std::collections::HashMap<&str, &str> {
-    query
-        .split("&")
-        .map(|kv| {
-            let mut kv = kv.split("=");
-            (kv.next().unwrap_or(""), kv.next().unwrap_or(""))
-        })
-        .collect::<std::collections::HashMap<&str, &str>>()
 }
