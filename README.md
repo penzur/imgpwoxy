@@ -7,7 +7,7 @@ img-proxy on the edge 🤣🙈
 **TODOS:**
 
 - [x] resize with aspect ratio
-- [ ] base64 encoded url?
+- [x] encode url
 - [x] add cache
 
 ---
@@ -37,11 +37,10 @@ run `wrangler publish`
 
 Try the following link with your browser of choice.
 
-`https://imgpwoxy.<your-cf-username>.workers.dev?width=<N>&height=<N>&url=<S>`
+`https://imgpwoxy.<your-cf-username>.workers.dev?width=<N>&height=<N>&url=<EncodeURI(S)>`
 
-> make sure you replace the placeholders with the right value
+> make sure you encode the url string
 
 ---
 
 🖖🤓
-

@@ -52,6 +52,11 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
                 Some(url) => url.to_owned(),
                 None => return Response::error("url could not be found", 400),
             };
+            // decode
+            let url = match urlencoding::decode(url) {
+                Ok(url) => url,
+                Err(_) => return Response::error("invalid url format", 400),
+            };
             // defaults both w and h to 256
             let width = qs
                 .get("width")
@@ -69,7 +74,7 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
                 .unwrap_or(256);
 
             // let's fetch the image
-            let req = match Request::new(url, worker::Method::Get) {
+            let req = match Request::new(url.into_owned().as_str(), worker::Method::Get) {
                 Ok(req) => req,
                 Err(_) => return Response::error("failed to create request", 400),
             };
