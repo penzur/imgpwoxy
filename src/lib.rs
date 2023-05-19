@@ -118,7 +118,7 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
             headers
                 .set(
                     "Content-Disposition",
-                    "inline; filename={width}x{height}.jpg",
+                    format!("inline; filename={width}x{height}.jpg").as_str(),
                 )
                 .ok();
             headers
