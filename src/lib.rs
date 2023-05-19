@@ -116,6 +116,12 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
             let mut headers = worker::Headers::new();
             headers.set("Content-Type", "image/jpeg").ok();
             headers
+                .set(
+                    "Content-Disposition",
+                    "inline; filename={width}x{height}.jpg",
+                )
+                .ok();
+            headers
                 .set("Cache-Control", "public, max-age=31536000")
                 .ok();
 
